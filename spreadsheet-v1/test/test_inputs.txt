@@ -1,0 +1,5 @@
+A1=Expression
+A1 = Expression
+ZZ999        =Expression
+A 1= Expression
+ZZ Z999   = Expression
