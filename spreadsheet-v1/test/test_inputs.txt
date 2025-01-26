@@ -1,5 +1,232 @@
-A1=Expression
-A1 = Expression
-ZZ999        =Expression
-A 1= Expression
-ZZ Z999   = Expression
+# Valid Control Inputs
+w
+a
+s
+d
+q
+ w 
+a 
+ s 
+
+# Invalid Control Inputs
+W
+A
+S
+D
+ww
+aa
+ss
+dd
+qq
+Ww
+Ss
+Aa
+Dd
+Qq
+ qq 
+  qQ  
+w a
+a s
+d w
+q1
+2
+e
+r
+f
+z
+x
+c
+v
+
+   
+\t
+\n
+
+# Valid Formulas with Constant Values
+A1=42
+ A1=42
+A1=42 
+ A1=42 
+A1 =42
+ A1 =42
+A1 =42 
+ A1 =42 
+A1= 42
+ A1= 42
+A1= 42 
+ A1= 42 
+A1 = 42
+ A1 = 42
+A1 = 42 
+ A1 = 42 
+ZZZ999=42
+ ZZZ999=42
+ZZZ999=42 
+ ZZZ999=42 
+ZZZ999 =42
+ ZZZ999 =42
+ZZZ999 =42 
+ ZZZ999 =42 
+ZZZ999= 42
+ ZZZ999= 42
+ZZZ999= 42 
+ ZZZ999= 42 
+ZZZ999 = 42
+ ZZZ999 = 42
+ZZZ999 = 42 
+ ZZZ999 = -42 
+A1=-0
+A1=-42
+A1=+42
+A1=999999999999999999
+A1=0
+A1=00000000
+A1=    -123   
+A1   =   456    
+  ZZZ999   =   -789  
+A1=+42
+A1=42++3
+
+# Invalid Formulas with Constant Values
+A01=42
+a1=42
+1A=42
+=42
+A1=
+A1=4A2
+A1=42 + 
+A 1=42
+A1=42.5
+A1=4,2
+A1="42"
+A1=42+
+A1A=42
+A1= 42 :
+A1=42 42
+A1= 42 +
+A1=42 + Z
+A1=42 + 3 3
+A1=42 + SLEEP
+A1=42 + 3)
+A1=42 + (3
+A1=42 + 3 *
+A1=42 + *3
+A1000=42
+ZZZZ1=42
+A1=42/3/2+
+A1=42*
+A1=*42
+A1=42=
+A1==42
+A1=42 42 42
+A1=42-+3
+A1=42--3
+
+# Valid Formulas with Arithmetic
+B2=3+4
+B2=3-4
+B2=3*4
+B2=3/4
+B2=ZA100+ZZ999
+B2=ZZZ999-42
+B2=5+-3
+B2=10--2
+B2= 3 + 4 
+B2=  5   *   2  
+B2 = SLEEP(3) + 5
+B2=MIN(A1:A10)*2
+B2=5/0
+B2=0/5
+B2=-5+-3
+B2=-10--2
+B2=   -3   +   4   
+B2=  5   /   -2  
+B2=ZZZ999+ZZZ999
+B2=A1*B2+C3/D4
+
+# Invalid Formulas with Arithmetic
+B2=3++4
+B2=3 + 4 + 
+B2=3 + A
+B2=3 + MIN()
+B2=3 + 4:5
+B2=3 + A1A10
+B2=3 + (4 - 2)
+B2=3 + AVG(5)
+B2=3 + SLEEP(A1)
+B2=3 + ZZZZ999
+B2=3 + A1000
+B2=3 + 4*
+B2=3 + *4
+B2=3 + 4 / 
+B2=3 + 4 5 6
+B2=3 + 4 5
+B2=3 +/ 4
+B2=3 + 4 MIN(A1)
+B2=3 + 4:SLEEP(2)
+B2=3 + A1:B2
+B2=3 + A1++4
+B2=3 + 4 + +5
+
+# Valid Formulas with Functions
+C3=MIN(A1:A10)
+C3=MAX(B2:D5)
+C3=AVG(Z1:Z100)
+C3=STDEV(A1:ZZZ999)
+C3=SLEEP(5)
+C3=MIN(A1)
+C3=MAX(ZZZ999:ZZZ999)
+C3=AVG(  A1   :   B2  )
+C3=STDEV( SLEEP(2) : SLEEP(5) )
+C3=SLEEP(0)
+C3=MIN(A1:A1)
+C3=MAX(B2:B2)
+C3=AVG(C3:C3)
+C3=STDEV(D4:D4)
+C3=SUM(SLEEP(1):SLEEP(3))
+C3=MIN(A1:ZZZ999)
+
+# Invalid Formulas with Functions
+C3=AVG(   MIN(A1:A10)   :   MAX(B2:D5)   )
+C3=MAX(ZZZ999:A1)
+C3=MIN()
+C3=MAX(A10:A1)
+C3=AVG(5)
+C3=STDEV(A1:B)
+C3=SLEEP(A1:A2)
+C3=MIN(A1A10)
+C3=SUMM(A1:A10)
+C3=MEAN(A1:A10)
+C3=MIN(A1, B2)
+C3=MAX(1A:B2)
+C3=AVG(:A2)
+C3=STDEV()
+C3=SLEEP(3.5)
+C3=MIN(A1 + 5)
+C3=MAX(5:SLEEP(2))
+C3=AVG(A1:)
+C3=MIN(A1::A10)
+C3=MAX(A1:B2:C3)
+C3=SLEEP(SLEEP(3))
+C3=MIN(MIN())
+C3=AVG(A1:5)
+C3=STDEV(ZZZZ1:A1)
+C3=SUM(A1:A0)
+
+# Edge Cases
+D4=0/5
+D4=999999999999999999999999999999999999999999999999999999999999
+D4=-0
+D4=ZZZ999=ZZZ999
+D4=ZZZ999=-ZZZ999
+D4=SLEEP(SLEEP(2))
+D4=MIN(A1:ZZZZ999)
+D4=MAX(A1:A1000)
+D4=AVG(:)
+D4=STDEV(::)
+D4=MIN(MAX())
+D4=SUM(A1:A1:A1)
+D4=SLEEP(-5)
+D4=MIN(999999999999999999999999999999999999999999999999999999999999)
+D4=AVG(0:0)
+D4=STDEV(ZZZ999:ZZZ999+1)

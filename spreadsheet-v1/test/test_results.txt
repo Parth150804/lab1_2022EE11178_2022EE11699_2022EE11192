@@ -1,0 +1,215 @@
+Input                          | Valid      | Parsed Information
+------------------------------------------------------------
+w                              | Yes        | Control: w
+a                              | Yes        | Control: a
+s                              | Yes        | Control: s
+d                              | Yes        | Control: d
+q                              | Yes        | Control: q
+ w                             | Yes        | Control: w
+a                              | Yes        | Control: a
+ s                             | Yes        | Control: s
+W                              | No         | 
+A                              | No         | 
+S                              | No         | 
+D                              | No         | 
+ww                             | No         | 
+aa                             | No         | 
+ss                             | No         | 
+dd                             | No         | 
+qq                             | No         | 
+Ww                             | No         | 
+Ss                             | No         | 
+Aa                             | No         | 
+Dd                             | No         | 
+Qq                             | No         | 
+ qq                            | No         | 
+  qQ                           | No         | 
+w a                            | No         | 
+a s                            | No         | 
+d w                            | No         | 
+q1                             | No         | 
+2                              | No         | 
+e                              | No         | 
+r                              | No         | 
+f                              | No         | 
+z                              | No         | 
+x                              | No         | 
+c                              | No         | 
+v                              | No         | 
+\t                             | No         | 
+\n                             | No         | 
+A1=42                          | Yes        | Constant: 42
+ A1=42                         | Yes        | Constant: 42
+A1=42                          | Yes        | Constant: 42
+ A1=42                         | Yes        | Constant: 42
+A1 =42                         | Yes        | Constant: 42
+ A1 =42                        | Yes        | Constant: 42
+A1 =42                         | Yes        | Constant: 42
+ A1 =42                        | Yes        | Constant: 42
+A1= 42                         | Yes        | Constant: 42
+ A1= 42                        | Yes        | Constant: 42
+A1= 42                         | Yes        | Constant: 42
+ A1= 42                        | Yes        | Constant: 42
+A1 = 42                        | Yes        | Constant: 42
+ A1 = 42                       | Yes        | Constant: 42
+A1 = 42                        | Yes        | Constant: 42
+ A1 = 42                       | Yes        | Constant: 42
+ZZZ999=42                      | Yes        | Constant: 42
+ ZZZ999=42                     | Yes        | Constant: 42
+ZZZ999=42                      | Yes        | Constant: 42
+ ZZZ999=42                     | Yes        | Constant: 42
+ZZZ999 =42                     | Yes        | Constant: 42
+ ZZZ999 =42                    | Yes        | Constant: 42
+ZZZ999 =42                     | Yes        | Constant: 42
+ ZZZ999 =42                    | Yes        | Constant: 42
+ZZZ999= 42                     | Yes        | Constant: 42
+ ZZZ999= 42                    | Yes        | Constant: 42
+ZZZ999= 42                     | Yes        | Constant: 42
+ ZZZ999= 42                    | Yes        | Constant: 42
+ZZZ999 = 42                    | Yes        | Constant: 42
+ ZZZ999 = 42                   | Yes        | Constant: 42
+ZZZ999 = 42                    | Yes        | Constant: 42
+ ZZZ999 = -42                  | Yes        | Constant: -42
+A1=-0                          | Yes        | Constant: -0
+A1=-42                         | Yes        | Constant: -42
+A1=+42                         | Yes        | Constant: +42
+A1=999999999999999999          | Yes        | Constant: 
+A1=0                           | Yes        | Constant: 0
+A1=00000000                    | Yes        | Constant: 00000000
+A1=    -123                    | Yes        | Constant: -123
+A1   =   456                   | Yes        | Constant: 456
+  ZZZ999   =   -789            | Yes        | Constant: -789
+A1=+42                         | Yes        | Constant: +42
+A1=42++3                       | Yes        | Arithmetic: 42 + +3
+A01=42                         | No         | 
+a1=42                          | No         | 
+1A=42                          | No         | 
+=42                            | No         | 
+A1=                            | No         | 
+A1=4A2                         | No         | 
+A1=42 +                        | No         | 
+A 1=42                         | No         | 
+A1=42.5                        | No         | 
+A1=4,2                         | No         | 
+A1="42"                        | No         | 
+A1=42+                         | No         | 
+A1A=42                         | No         | 
+A1= 42 :                       | No         | 
+A1=42 42                       | No         | 
+A1= 42 +                       | No         | 
+A1=42 + Z                      | No         | 
+A1=42 + 3 3                    | No         | 
+A1=42 + SLEEP                  | No         | 
+A1=42 + 3)                     | No         | 
+A1=42 + (3                     | No         | 
+A1=42 + 3 *                    | No         | 
+A1=42 + *3                     | No         | 
+A1000=42                       | No         | 
+ZZZZ1=42                       | No         | 
+A1=42/3/2+                     | No         | 
+A1=42*                         | No         | 
+A1=*42                         | No         | 
+A1=42=                         | No         | 
+A1==42                         | No         | 
+A1=42 42 42                    | No         | 
+A1=42-+3                       | Yes        | Arithmetic: 42 - +3
+A1=42--3                       | Yes        | Arithmetic: 42 - -3
+B2=3+4                         | Yes        | Arithmetic: 3 + 4
+B2=3-4                         | Yes        | Arithmetic: 3 - 4
+B2=3*4                         | Yes        | Arithmetic: 3 * 4
+B2=3/4                         | Yes        | Arithmetic: 3 / 4
+B2=ZA100+ZZ999                 | Yes        | Arithmetic: ZA100 + ZZ999
+B2=ZZZ999-42                   | Yes        | Arithmetic: ZZZ999 - 42
+B2=5+-3                        | Yes        | Arithmetic: 5 + -3
+B2=10--2                       | Yes        | Arithmetic: 10 - -2
+B2= 3 + 4                      | Yes        | Arithmetic: 3 + 4
+B2=  5   *   2                 | Yes        | Arithmetic: 5 * 2
+B2 = SLEEP(3) + 5              | No         | 
+B2=MIN(A1:A10)*2               | No         | 
+B2=5/0                         | Yes        | Arithmetic: 5 / 0
+B2=0/5                         | Yes        | Arithmetic: 0 / 5
+B2=-5+-3                       | Yes        | Arithmetic: -5 + -3
+B2=-10--2                      | Yes        | Arithmetic: -10 - -2
+B2=   -3   +   4               | Yes        | Arithmetic: -3 + 4
+B2=  5   /   -2                | Yes        | Arithmetic: 5 / -2
+B2=ZZZ999+ZZZ999               | Yes        | Arithmetic: ZZZ999 + ZZZ999
+B2=A1*B2+C3/D4                 | No         | 
+B2=3++4                        | Yes        | Arithmetic: 3 + +4
+B2=3 + 4 +                     | No         | 
+B2=3 + A                       | No         | 
+B2=3 + MIN()                   | No         | 
+B2=3 + 4:5                     | No         | 
+B2=3 + A1A10                   | No         | 
+B2=3 + (4 - 2)                 | No         | 
+B2=3 + AVG(5)                  | No         | 
+B2=3 + SLEEP(A1)               | No         | 
+B2=3 + ZZZZ999                 | No         | 
+B2=3 + A1000                   | No         | 
+B2=3 + 4*                      | No         | 
+B2=3 + *4                      | No         | 
+B2=3 + 4 /                     | No         | 
+B2=3 + 4 5 6                   | No         | 
+B2=3 + 4 5                     | No         | 
+B2=3 +/ 4                      | No         | 
+B2=3 + 4 MIN(A1)               | No         | 
+B2=3 + 4:SLEEP(2)              | No         | 
+B2=3 + A1:B2                   | No         | 
+B2=3 + A1++4                   | No         | 
+B2=3 + 4 + +5                  | No         | 
+C3=MIN(A1:A10)                 | Yes        | Function: MIN(A1:A10)
+C3=MAX(B2:D5)                  | Yes        | Function: MAX(B2:D5)
+C3=AVG(Z1:Z100)                | Yes        | Function: AVG(Z1:Z100)
+C3=STDEV(A1:ZZZ999)            | Yes        | Function: STDEV(A1:ZZZ999)
+C3=SLEEP(5)                    | Yes        | Function: SLEEP(5)
+C3=MIN(A1)                     | No         | 
+C3=MAX(ZZZ999:ZZZ999)          | Yes        | Function: MAX(ZZZ999:ZZZ999)
+C3=AVG(  A1   :   B2  )        | Yes        | Function: AVG(A1   :   B2  )
+C3=STDEV( SLEEP(2) : SLEEP(5) ) | No         | 
+C3=SLEEP(0)                    | Yes        | Function: SLEEP(0)
+C3=MIN(A1:A1)                  | Yes        | Function: MIN(A1:A1)
+C3=MAX(B2:B2)                  | Yes        | Function: MAX(B2:B2)
+C3=AVG(C3:C3)                  | Yes        | Function: AVG(C3:C3)
+C3=STDEV(D4:D4)                | Yes        | Function: STDEV(D4:D4)
+C3=SUM(SLEEP(1):SLEEP(3))      | No         | 
+C3=MIN(A1:ZZZ999)              | Yes        | Function: MIN(A1:ZZZ999)
+C3=AVG(   MIN(A1:A10)   :   MAX(B2:D5)   ) | No         | 
+C3=MAX(ZZZ999:A1)              | No         | 
+C3=MIN()                       | No         | 
+C3=MAX(A10:A1)                 | No         | 
+C3=AVG(5)                      | No         | 
+C3=STDEV(A1:B)                 | No         | 
+C3=SLEEP(A1:A2)                | No         | 
+C3=MIN(A1A10)                  | No         | 
+C3=SUMM(A1:A10)                | No         | 
+C3=MEAN(A1:A10)                | No         | 
+C3=MIN(A1, B2)                 | No         | 
+C3=MAX(1A:B2)                  | No         | 
+C3=AVG(:A2)                    | No         | 
+C3=STDEV()                     | No         | 
+C3=SLEEP(3.5)                  | No         | 
+C3=MIN(A1 + 5)                 | No         | 
+C3=MAX(5:SLEEP(2))             | No         | 
+C3=AVG(A1:)                    | No         | 
+C3=MIN(A1::A10)                | No         | 
+C3=MAX(A1:B2:C3)               | No         | 
+C3=SLEEP(SLEEP(3))             | No         | 
+C3=MIN(MIN())                  | No         | 
+C3=AVG(A1:5)                   | No         | 
+C3=STDEV(ZZZZ1:A1)             | No         | 
+C3=SUM(A1:A0)                  | No         | 
+D4=0/5                         | Yes        | Arithmetic: 0 / 5
+D4=999999999999999999999999999999999999999999999999999999999999 | Yes        | Constant: 
+D4=-0                          | Yes        | Constant: -0
+D4=ZZZ999=ZZZ999               | No         | 
+D4=ZZZ999=-ZZZ999              | No         | 
+D4=SLEEP(SLEEP(2))             | No         | 
+D4=MIN(A1:ZZZZ999)             | No         | 
+D4=MAX(A1:A1000)               | No         | 
+D4=AVG(:)                      | No         | 
+D4=STDEV(::)                   | No         | 
+D4=MIN(MAX())                  | No         | 
+D4=SUM(A1:A1:A1)               | No         | 
+D4=SLEEP(-5)                   | No         | 
+D4=MIN(999999999999999999999999999999999999999999999999999999999999) | No         | 
+D4=AVG(0:0)                    | No         | 
+D4=STDEV(ZZZ999:ZZZ999+1)      | No         | 

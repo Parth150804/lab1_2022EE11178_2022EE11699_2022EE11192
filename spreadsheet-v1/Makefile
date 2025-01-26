@@ -1,18 +1,25 @@
+# Compiler and flags
 CC = gcc
 CFLAGS = -Wall -std=c11
+
+# Files
+TEST_SRC = test/testing_input_handling.c
 TARGET = test/testing_input_handling
-SRC = test/testing_input_handling.c
 INPUT_FILE = test/test_inputs.txt
 
-.PHONY: all clean test_input_handling clean_input_validation
-
+# Default target
 all: $(TARGET)
 
-$(TARGET): $(SRC)
+# Rule to build the target executable
+$(TARGET): $(TEST_SRC)
 	$(CC) $(CFLAGS) $< -o $@
 
-test_input_handling: $(TARGET)
+# Rule to run tests
+test: $(TARGET)
 	./$(TARGET) $(INPUT_FILE)
 
-clean_input_handling:
+# Rule to clean up generated files
+clean:
 	rm -f $(TARGET)
+
+.PHONY: all test clean
