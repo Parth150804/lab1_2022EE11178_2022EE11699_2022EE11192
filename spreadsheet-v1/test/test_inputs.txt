@@ -86,7 +86,8 @@ A1   =   456
   ZZZ999   =   -789  
 A1=+42
 A1=42++3
-A1=09 or 009 and so on. (should be able to ignore leading zeros)
+A1=09 
+# or 009 and so on. (should be able to ignore leading zeros)
 
 # Invalid Formulas with Constant Values
 A01=42
