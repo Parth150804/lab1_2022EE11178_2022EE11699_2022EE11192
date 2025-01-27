@@ -21,7 +21,8 @@ void get_column_label(int col_index, char *label) {
 
 // Function to print the column headers (Excel-like A, B, C, ..., AA, AB, ..., ZZZ)
 void print_column_headers(int ncols) {
-  for (int j = 0; j < ncols; j++) {
+  int max_cols = ncols > 10 ? 10 : ncols;
+  for (int j = 0; j < max_cols; j++) {
     char label[10];
     get_column_label(j, label);
     printf("%-6s", label);  // Adjust width to 6 for proper spacing
@@ -40,9 +41,11 @@ void initialize_sheet(int *sheet, int nrows, int ncols) {
 
 // Function to print row headers and data of the sheet
 void print_sheet_data(const int *sheet, int nrows, int ncols) {
-  for (int i = 0; i < nrows; i++) {
+  int max_rows = nrows > 10 ? 10 : nrows;
+  int max_cols = ncols > 10 ? 10 : ncols;
+  for (int i = 0; i < max_rows; i++) {
     printf("%-3d   ", i + 1);  // Row header, adjusted width to 3 for proper spacing
-    for (int j = 0; j < ncols; j++) {
+    for (int j = 0; j < max_cols; j++) {
       printf("%-6d", *(sheet + i * ncols + j));  // Sheet data, adjusted width to 6
     }
     printf("\n");
