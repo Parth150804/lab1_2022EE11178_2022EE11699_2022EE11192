@@ -112,7 +112,7 @@ bool validate_cell(const char* input, char* cell){ //DONE
     regmatch_t matches[2];
 
     if (!executeRegex(cell_pattern, input, matches, 2, "Cell")) {
-        fprintf(stderr, ". Invalid cell: %s. Size: %d\n", input, sizeof(input));
+        fprintf(stderr, ". Invalid cell: %s. Size: %ld\n", input, sizeof(input));
         return false;
     }
 
@@ -279,6 +279,13 @@ int main() {
 
         // Parse and validate the input
         bool valid = parse_input(input, cell, &expr);
+
+        printf("%s\n", expr.type);
+        printf("%s\n", expr.value[0]);
+        printf("%s\n", expr.value[1]);
+        printf("%s\n", expr.operator);
+        printf("%s\n", expr.function);
+        printf("%s\n", expr.range);
 
         // Write results to the output file
         fprintf(output_file, "%-30s | %-10s | ", input, valid ? "Yes" : "No");
