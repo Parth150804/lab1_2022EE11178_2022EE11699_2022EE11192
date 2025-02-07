@@ -4,6 +4,7 @@
 #include <regex.h> // REGEX POSIX.2 
 #include <stdbool.h> // Boolean type
 #include <ctype.h> 
+// #include "../src/commands.c"
 
 // Struct to store parsed expressions
 typedef struct {
@@ -112,10 +113,10 @@ bool validate_cell(const char* input, char* cell){ //DONE
     regmatch_t matches[2];
 
     if (!executeRegex(cell_pattern, input, matches, 2, "Cell")) {
-        fprintf(stderr, ". Invalid cell: %s. Size: %ld\n", input, sizeof(input));
+        // fprintf(stderr, ". Invalid cell: %s. Size: %ld\n", input, sizeof(input));
         return false;
     }
-
+    
     assign_matches(input, &matches[1], cell, sizeof(cell));
     return true;
 }
@@ -170,13 +171,13 @@ bool validate_expression(const char* input, Expression* expr){
         if (strcmp(expr->function, "SLEEP") == 0) {
             // SLEEP function expects a constant or cell reference
             if (!executeRegex(positive_constant_pattern, expr->range, matches, 2, "SLEEP Value") && !executeRegex(cell_pattern, expr->range, matches, 2, "SLEEP Cell")) {
-                fprintf(stderr, ". Invalid SLEEP argument: %s\n", expr->range);
+                // fprintf(stderr, ". Invalid SLEEP argument: %s\n", expr->range);
                 return false;
             }
         } else {
             // Other functions expect a valid range
             if (!validate_range(expr->range)) {
-                fprintf(stderr, ". Invalid range: %s\n", expr->range);
+                // fprintf(stderr, ". Invalid range: %s\n", expr->range);
                 return false;
             }
         }
@@ -184,7 +185,7 @@ bool validate_expression(const char* input, Expression* expr){
     }
 
     // If none of the above patterns match, the expression is invalid
-    fprintf(stderr, ". Invalid expression: %s\n", input);
+    // fprintf(stderr, ". Invalid expression: %s\n", input);
     return false;
 }
 
@@ -256,7 +257,7 @@ int main() {
 
     while (fgets(input, sizeof(input), input_file)) {
         // Remove newline character from input
-        input[strcspn(input, "\n")] = '\0';
+        input[strcspn(input, "\r\n")] = '\0';
 
         // Skip empty lines and comment lines starting with '#'
         int is_comment = 0;
@@ -280,12 +281,12 @@ int main() {
         // Parse and validate the input
         bool valid = parse_input(input, cell, &expr);
 
-        printf("%s\n", expr.type);
-        printf("%s\n", expr.value[0]);
-        printf("%s\n", expr.value[1]);
-        printf("%s\n", expr.operator);
-        printf("%s\n", expr.function);
-        printf("%s\n", expr.range);
+        // printf("%s, ", expr.type);
+        // printf("%s, ", expr.value[0]);
+        // printf("%s, ", expr.value[1]);
+        // printf("%s, ", expr.operator);
+        // printf("%s, ", expr.function);
+        // printf("%s\n", expr.range);
 
         // Write results to the output file
         fprintf(output_file, "%-30s | %-10s | ", input, valid ? "Yes" : "No");
@@ -313,3 +314,5 @@ int main() {
     printf("Testing complete. Results written to 'test_results.txt'.\n");
     return EXIT_SUCCESS;
 }
+
+

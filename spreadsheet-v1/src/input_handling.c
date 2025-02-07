@@ -1,4 +1,4 @@
-#include "input_handling.h"
+#include "../include/input_handling.h"
 
 // Helper function to compile and execute regex
 static bool executeRegex(const char* pattern, const char* input, regmatch_t* matches, int match_count, char* task) { //DONE
@@ -58,10 +58,9 @@ bool validate_cell(const char* input, char* cell){ //DONE
     regmatch_t matches[2];
 
     if (!executeRegex(cell_pattern, input, matches, 2, "Cell")) {
-        fprintf(stderr, ". Invalid cell: %s. Size: %d\n", input, sizeof(input));
+        // fprintf(stderr, ". Invalid cell: %s. Size: %ld\n", input, sizeof(input));
         return false;
     }
-
     assign_matches(input, &matches[1], cell, sizeof(cell));
     return true;
 }

@@ -81,6 +81,7 @@ A1   =   456                   | Yes        | Constant: 456
   ZZZ999   =   -789            | Yes        | Constant: -789
 A1=+42                         | Yes        | Constant: +42
 A1=42++3                       | Yes        | Arithmetic: 42 + +3
+A1=09                          | Yes        | Constant: 09
 A01=42                         | No         | 
 a1=42                          | No         | 
 1A=42                          | No         | 

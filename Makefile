@@ -1,2 +1,2 @@
 all:
-	@gcc v0.c -o sheet
+	@gcc v0.c -o sheet -lm
