@@ -108,7 +108,9 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    Node **sheet = (Node **)malloc(nrows * ncols * sizeof(Node *));
+    time_t start_time = time(NULL);  // Start measuring time
+
+    Node **sheet = (Node **)malloc(nrows * sizeof(Node *));
     if (!sheet) {
         printf("Memory allocation failed.\n");
         return 1;
@@ -126,8 +128,6 @@ int main(int argc, char *argv[]) {
     initialize_sheet(sheet, nrows, ncols);
 
     bool print_output = true;
-
-    time_t start_time = time(NULL);  // Start measuring time
 
     if (print_output) display_sheet(sheet, nrows, ncols, 0, 0, print_output);
 
@@ -294,7 +294,8 @@ int main(int argc, char *argv[]) {
                         else {
                             val = string_to_int(expr.range);
                         }
-                        sleep(val);
+                        if (val >= 0) sleep(val);
+                        
                         sheet[r][c].error = false;
                         sheet[r][c].value = val;
                     }
