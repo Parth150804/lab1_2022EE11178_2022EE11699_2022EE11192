@@ -85,7 +85,10 @@ void print_sheet_data(Node **sheet, int nrows, int ncols, int start_row, int sta
 }
 
 // Function to display the sheet
-void display_sheet(Node **sheet, int nrows, int ncols, int start_row, int start_col) {
+void display_sheet(Node **sheet, int nrows, int ncols, int start_row, int start_col, bool flag) {
+    if (flag == false) {
+        return;
+    }
     printf("      ");
     print_column_headers(start_col, ncols);
     print_sheet_data(sheet, nrows, ncols, start_row, start_col);
@@ -101,7 +104,7 @@ int main(int argc, char *argv[]) {
     int ncols = atoi(argv[2]);
 
     if (nrows < 1 || nrows > 999 || ncols < 1 || ncols > 18278) {
-        printf("Invalid range. Rows must be between 1 and 999, and columns between 1 and 18278.\n");
+        printf("Invalid range.\n");
         return 1;
     }
 
@@ -124,17 +127,17 @@ int main(int argc, char *argv[]) {
 
     bool print_output = true;
 
-        time_t start_time = time(NULL);  // Start measuring time
+    time_t start_time = time(NULL);  // Start measuring time
 
-        if (print_output) display_sheet(sheet, nrows, ncols, 0, 0);
+    if (print_output) display_sheet(sheet, nrows, ncols, 0, 0, print_output);
 
-        time_t end_time = time(NULL);  // End measuring time
-        double elapsed_time = (double)(end_time - start_time);
+    time_t end_time = time(NULL);  // End measuring time
+    double elapsed_time = (double)(end_time - start_time);
 
-        int start_row = 0;
-        int start_col = 0;
-        char status[100];
-        strcpy(status, "ok");
+    int start_row = 0;
+    int start_col = 0;
+    char status[100];
+    strcpy(status, "ok");
 
     while (true) {
         printf("[%.1f] (%s) > ", elapsed_time, status);  // Print execution time and prompt
@@ -146,7 +149,16 @@ int main(int argc, char *argv[]) {
         fgets(input, sizeof(input), stdin);  // Read the entire input line including spaces
         input[strcspn(input, "\n")] = 0;     // Remove the newline character from fgets 
 
+        if (strcmp(input, "disable_output") == 0) {
+            print_output = false;
+        }
+        
+        if (strcmp(input, "enable_output") == 0) {
+            print_output = true;
+        }
+
         bool valid = parse_input(input, cell, &expr);
+
         if (valid) {
             if (strcmp(expr.type, "control") == 0) {
                 int r, c;
@@ -177,7 +189,7 @@ int main(int argc, char *argv[]) {
                 if (r != nrows) start_row = r;
                 if (c != ncols) start_col = c;
 
-                display_sheet(sheet, nrows, ncols, start_row, start_col);
+                display_sheet(sheet, nrows, ncols, start_row, start_col, print_output);
 
                 end_time = time(NULL);  
                 elapsed_time = (double)(end_time - start_time);
@@ -199,7 +211,7 @@ int main(int argc, char *argv[]) {
                     strcpy(status, "ok");
                 } 
 
-                display_sheet(sheet, nrows, ncols, start_row, start_col);
+                display_sheet(sheet, nrows, ncols, start_row, start_col, print_output);
 
                 end_time = time(NULL);  
                 elapsed_time = (double)(end_time - start_time);
@@ -248,7 +260,7 @@ int main(int argc, char *argv[]) {
                         sheet[r][c].value = performOpr(x, y, op);
                     }
                 }
-                display_sheet(sheet, nrows, ncols, start_row, start_col);
+                display_sheet(sheet, nrows, ncols, start_row, start_col, print_output);
 
                 end_time = time(NULL);  
                 elapsed_time = (double)(end_time - start_time); 
@@ -286,7 +298,7 @@ int main(int argc, char *argv[]) {
                         sheet[r][c].error = false;
                         sheet[r][c].value = val;
                     }
-                    display_sheet(sheet, nrows, ncols, start_row, start_col);
+                    display_sheet(sheet, nrows, ncols, start_row, start_col, print_output);
         
                     end_time = time(NULL);  
                     elapsed_time = (double)(end_time - start_time);
@@ -318,7 +330,7 @@ int main(int argc, char *argv[]) {
                         else {
                             strcpy(status, "unrecognized cmd");
                         }
-                        display_sheet(sheet, nrows, ncols, start_row, start_col);
+                        display_sheet(sheet, nrows, ncols, start_row, start_col, print_output);
         
                         end_time = time(NULL);  
                         elapsed_time = (double)(end_time - start_time); 
@@ -330,14 +342,48 @@ int main(int argc, char *argv[]) {
             }
         }
         else {
-            strcpy(status, "unrecognized cmd");
+            bool flag = false;
+            if (strcmp(input, "disable_output") == 0) {
+                strcpy(status, "ok");
+            }
+            else if (strcmp(input, "enable_output") == 0) {
+                strcpy(status, "ok");
+                flag = true;
+                print_output = false;
+            }
+            else if (strncmp(input, "scroll_to ", 10) == 0) {
+                char cell[100];
+                extract_cell(input, cell);
+                if (is_valid_cell_reference(cell)) {
+                    char col_label[100];
+                    int r, c;
+                    extract_column_row(cell, col_label, &r);
+                    c = column_label_to_index(col_label);
+                    
+                    if (r >= nrows || c >= ncols) {
+                        strcpy(status, "Invalid range");
+                    }
+                    else {
+                        start_row = r;
+                        start_col = c;
+                    }
+                }
+                else {
+                    strcpy(status, "Invalid range");
+                }
+            }
+            else {
+                strcpy(status, "unrecognized cmd");
+            }
 
             start_time = time(NULL);
 
-            display_sheet(sheet, nrows, ncols, start_row, start_col);
+            display_sheet(sheet, nrows, ncols, start_row, start_col, print_output);
 
             end_time = time(NULL);  
             elapsed_time = (double)(end_time - start_time);
+
+            if (flag) print_output = true;
         }
     }
 

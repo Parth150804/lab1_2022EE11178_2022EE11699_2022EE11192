@@ -194,3 +194,14 @@ bool is_valid_cell_reference(const char *cell) {
 
     return cell[i] == '\0'; // Ensure no extra characters
 }
+
+void extract_cell(const char *input, char *cell) {
+    const char *start = strchr(input, ' '); // Find the first space
+    if (start) {
+        start++; // Move past the space
+        while (*start && isspace((unsigned char)*start)) start++; // Skip extra spaces if any
+        strcpy(cell, start); // Copy the cell part
+    } else {
+        cell[0] = '\0'; // If no space found, return an empty string
+    }
+}

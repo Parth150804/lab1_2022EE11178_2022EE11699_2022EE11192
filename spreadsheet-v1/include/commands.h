@@ -36,4 +36,6 @@ int stdev_range(Node **sheet, int row1, int col1, int row2, int col2);
 
 bool is_valid_cell_reference(const char *cell);
 
+void extract_cell(const char *input, char *cell);
+
 
