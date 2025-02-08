@@ -11,6 +11,7 @@ typedef struct Node {
     char *expression;         // Expression (if any) stored as a string
     struct Node **dependencies; // Array of pointers to dependent nodes
     int dep_count;            // Number of dependencies
+    bool error;
 } Node;
 
 int string_to_int(const char *str);

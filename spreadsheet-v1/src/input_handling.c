@@ -168,13 +168,13 @@ bool validate_expression(const char* input, Expression* expr){
         if (strcmp(expr->function, "SLEEP") == 0) {
             // SLEEP function expects a constant or cell reference
             if (!executeRegex(positive_constant_pattern, expr->range, matches, 2, "SLEEP Value") && !executeRegex(cell_pattern, expr->range, matches, 2, "SLEEP Cell")) {
-                fprintf(stderr, ". Invalid SLEEP argument: %s\n", expr->range);
+                // fprintf(stderr, ". Invalid SLEEP argument: %s\n", expr->range);
                 return false;
             }
         } else {
             // Other functions expect a valid range
             if (!validate_range(expr->range)) {
-                fprintf(stderr, ". Invalid range: %s\n", expr->range);
+                // fprintf(stderr, ". Invalid range: %s\n", expr->range);
                 return false;
             }
         }
@@ -182,7 +182,7 @@ bool validate_expression(const char* input, Expression* expr){
     }
 
     // If none of the above patterns match, the expression is invalid
-    fprintf(stderr, ". Invalid expression: %s\n", input);
+    // fprintf(stderr, ". Invalid expression: %s\n", input);
     return false;
 }
 

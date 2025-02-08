@@ -16,9 +16,10 @@ Node *create_node() {
         return NULL; // Return NULL to indicate failure
     }
     new_node->value = 0;
-    new_node->expression = NULL;
+    new_node->expression = (char*)malloc(strlen("ERR") + 1);
     new_node->dependencies = NULL;
     new_node->dep_count = 0;
+    new_node->error=false;
     return new_node;
 }
 
@@ -72,7 +73,12 @@ void print_sheet_data(Node **sheet, int nrows, int ncols, int start_row, int sta
     for (int i = start_row; i < start_row + max_rows; i++) {
         printf("%-6d", i + 1);  // Row index
         for (int j = start_col; j < start_col + max_cols; j++) {
-            printf("%-6d", sheet[i][j].value);  // Corrected access
+            if (!sheet[i][j].error) {
+                printf("%-6d", sheet[i][j].value);  // Corrected access
+            }
+            else {
+                printf("%-6s", sheet[i][j].expression);
+            }
         }
         printf("\n");
     }
@@ -188,6 +194,7 @@ int main(int argc, char *argv[]) {
                     strcpy(status, "Invalid range");
                 }
                 else {
+                    sheet[r][c].error = false;
                     sheet[r][c].value = val;
                     strcpy(status, "ok");
                 } 
@@ -231,10 +238,13 @@ int main(int argc, char *argv[]) {
                         y = string_to_int(expr.value[1]);
                     }
                     char op = expr.operator[0];
+
                     if (op == '/' && y == 0) { 
+                        sheet[r][c].error = true;
                         strcpy(sheet[r][c].expression, "ERR");
                     }
                     else {
+                        sheet[r][c].error = false;
                         sheet[r][c].value = performOpr(x, y, op);
                     }
                 }
@@ -265,8 +275,15 @@ int main(int argc, char *argv[]) {
                     }
                     else {
                         strcpy(status, "ok");
-                        int val = sheet[r1][c1].value;
+                        int val;
+                        if (is_valid_cell_reference(expr.range)) {
+                            val = sheet[r1][c1].value;
+                        } 
+                        else {
+                            val = string_to_int(expr.range);
+                        }
                         sleep(val);
+                        sheet[r][c].error = false;
                         sheet[r][c].value = val;
                     }
                     display_sheet(sheet, nrows, ncols, start_row, start_col);
@@ -279,18 +296,23 @@ int main(int argc, char *argv[]) {
                     int row1, col1, row2, col2;
                     if (is_valid_range(expr.range, &row1, &col1, &row2, &col2)) {
                         if (strcmp(expr.function, "MIN") == 0) {
+                            sheet[r][c].error = false;
                             sheet[r][c].value = min_range(sheet, row1, col1, row2, col2);
                         } 
                         else if (strcmp(expr.function, "MAX") == 0) {
+                            sheet[r][c].error = false;
                             sheet[r][c].value = max_range(sheet, row1, col1, row2, col2);
                         } 
                         else if (strcmp(expr.function, "AVG") == 0) {
+                            sheet[r][c].error = false;
                             sheet[r][c].value = avg_range(sheet, row1, col1, row2, col2);
                         } 
                         else if (strcmp(expr.function, "SUM") == 0) {
+                            sheet[r][c].error = false;
                             sheet[r][c].value = sum_range(sheet, row1, col1, row2, col2);
                         } 
                         else if (strcmp(expr.function, "STDEV") == 0) {
+                            sheet[r][c].error = false;
                             sheet[r][c].value = stdev_range(sheet, row1, col1, row2, col2);
                         }
                         else {
@@ -309,6 +331,13 @@ int main(int argc, char *argv[]) {
         }
         else {
             strcpy(status, "unrecognized cmd");
+
+            start_time = time(NULL);
+
+            display_sheet(sheet, nrows, ncols, start_row, start_col);
+
+            end_time = time(NULL);  
+            elapsed_time = (double)(end_time - start_time);
         }
     }
 
