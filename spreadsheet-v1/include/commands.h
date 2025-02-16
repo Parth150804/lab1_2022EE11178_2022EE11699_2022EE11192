@@ -4,14 +4,16 @@
 #include <string.h>
 #include <math.h>
 #include <limits.h>
-
 // Define a structure for each cell (node in the graph)
 typedef struct Node {
     int value;                // Integer value of the cell
     char *expression;         // Expression (if any) stored as a string
     struct Node **dependencies; // Array of pointers to dependent nodes
-    int dep_count;            // Number of dependencies
+    int depc_count;            // Number of dependencies
+    int dept_count;            // Number of dependents
     bool error;
+    struct Node **dependents; // Array of pointers to dependent nodes
+    struct Expression *cellexpr;  // Expression struct
 } Node;
 
 int string_to_int(const char *str);
