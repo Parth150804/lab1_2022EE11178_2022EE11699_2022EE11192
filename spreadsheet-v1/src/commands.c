@@ -1,4 +1,6 @@
 #include "../include/commands.h"
+#include <stdbool.h>
+
 
 // to convert the numerical values in formula (stored as string) into integer
 int string_to_int(const char *str) {

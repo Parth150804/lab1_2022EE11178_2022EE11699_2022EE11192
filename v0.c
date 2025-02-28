@@ -190,7 +190,7 @@ void add_dependency(Node *dependent, Node *dependency)
         printf("Memory allocation failed while adding dependency.\n");
         return;
     }
-
+    
     // Add the new dependency
     dependency->dependencies[dependency->depc_count] = dependent;
     dependency->depc_count++;
@@ -212,18 +212,75 @@ void add_dependents(Node *dependent, Node *dependency)
     dependent->dept_count++;
 }
 
+// Remove 'dependent' from the dependency cell's dependents list.
+void remove_dependent(Node *dependency, Node *dependent)
+{
+    if (!dependency || !dependency->dependents)
+        return;
+    int index = -1;
+    for (int i = 0; i < dependency->dept_count; i++)
+    {
+        if (dependency->dependents[i] == dependent)
+        {
+            index = i;
+            break;
+        }
+    }
+    if (index != -1)
+    {
+        // Shift elements left.
+        for (int i = index; i < dependency->dept_count - 1; i++)
+        {
+            dependency->dependents[i] = dependency->dependents[i + 1];
+        }
+        dependency->dept_count--;
+        if (dependency->dept_count == 0)
+        {
+            free(dependency->dependents);
+            dependency->dependents = NULL;
+        }
+        else
+        {
+            dependency->dependents = realloc(dependency->dependents,
+                                             dependency->dept_count * sizeof(Node *));
+        }
+    }
+}
+
+// Clear all dependency links from a cell.
+// For each dependency in cell->dependencies, remove cell from that dependency’s dependents list.
+void clear_dependencies(Node *cell)
+{
+    if (cell->dependencies != NULL)
+    {
+        for (int i = 0; i < cell->depc_count; i++)
+        {
+            remove_dependent(cell->dependencies[i], cell);
+        }
+        free(cell->dependencies);
+        cell->dependencies = NULL;
+        cell->depc_count = 0;
+    }
+}
+
+
+
 // recursive function to recalculate the cell
-void recalculate_cell(Node **sheet, int nrows, int ncols, Node *node) {
-    if (!node) return; // Skip if node is NULL
+void recalculate_cell(Node **sheet, int nrows, int ncols, Node *node)
+{
+    if (!node)
+        return; // Skip if node is NULL
 
     // For arithmetic expressions:
-    if (node->cellexpr && strcmp(node->cellexpr->type, "arithmetic") == 0) {
+    if (node->cellexpr && strcmp(node->cellexpr->type, "arithmetic") == 0)
+    {
         int x = 0, y = 0;
         char op = node->cellexpr->operator[0];
         bool dependencyError = false;
 
         // Evaluate first operand.
-        if (is_valid_cell_reference(node->cellexpr->value[0])) {
+        if (is_valid_cell_reference(node->cellexpr->value[0]))
+        {
             char col_label[10];
             int row, col;
             extract_column_row(node->cellexpr->value[0], col_label, &row);
@@ -231,12 +288,15 @@ void recalculate_cell(Node **sheet, int nrows, int ncols, Node *node) {
             if (sheet[row][col].error)
                 dependencyError = true;
             x = sheet[row][col].value;
-        } else {
+        }
+        else
+        {
             x = string_to_int(node->cellexpr->value[0]);
         }
 
         // Evaluate second operand.
-        if (is_valid_cell_reference(node->cellexpr->value[1])) {
+        if (is_valid_cell_reference(node->cellexpr->value[1]))
+        {
             char col_label[10];
             int row, col;
             extract_column_row(node->cellexpr->value[1], col_label, &row);
@@ -244,63 +304,87 @@ void recalculate_cell(Node **sheet, int nrows, int ncols, Node *node) {
             if (sheet[row][col].error)
                 dependencyError = true;
             y = sheet[row][col].value;
-        } else {
+        }
+        else
+        {
             y = string_to_int(node->cellexpr->value[1]);
         }
 
         // If any dependency is in error or division by zero occurs, mark error.
-        if (dependencyError || (op == '/' && y == 0)) {
+        if (dependencyError || (op == '/' && y == 0))
+        {
             node->error = true;
             strcpy(node->expression, "ERR");
-        } else {
+        }
+        else
+        {
             node->error = false;
             node->value = performOpr(x, y, op);
         }
     }
     // For function expressions:
-    else if (node->cellexpr && strcmp(node->cellexpr->type, "function") == 0) {
+    else if (node->cellexpr && strcmp(node->cellexpr->type, "function") == 0)
+    {
         int row1, col1, row2, col2;
         bool dependencyError = false;
-        if (is_valid_range(node->cellexpr->range, &row1, &col1, &row2, &col2)) {
+        if (is_valid_range(node->cellexpr->range, &row1, &col1, &row2, &col2))
+        {
             // Check every cell in the range for an error.
-            for (int i = row1; i <= row2 && !dependencyError; i++) {
-                for (int j = col1; j <= col2; j++) {
-                    if (sheet[i][j].error) {
+            for (int i = row1; i <= row2 && !dependencyError; i++)
+            {
+                for (int j = col1; j <= col2; j++)
+                {
+                    if (sheet[i][j].error)
+                    {
                         dependencyError = true;
                         break;
                     }
                 }
             }
-            if (dependencyError) {
+            if (dependencyError)
+            {
                 node->error = true;
                 strcpy(node->expression, "ERR");
-            } else {
+            }
+            else
+            {
                 // Evaluate the function normally.
-                if (strcmp(node->cellexpr->function, "MIN") == 0) {
+                if (strcmp(node->cellexpr->function, "MIN") == 0)
+                {
                     node->value = min_range(sheet, row1, col1, row2, col2);
-                } else if (strcmp(node->cellexpr->function, "MAX") == 0) {
+                }
+                else if (strcmp(node->cellexpr->function, "MAX") == 0)
+                {
                     node->value = max_range(sheet, row1, col1, row2, col2);
-                } else if (strcmp(node->cellexpr->function, "SUM") == 0) {
+                }
+                else if (strcmp(node->cellexpr->function, "SUM") == 0)
+                {
                     node->value = sum_range(sheet, row1, col1, row2, col2);
-                } else if (strcmp(node->cellexpr->function, "AVG") == 0) {
+                }
+                else if (strcmp(node->cellexpr->function, "AVG") == 0)
+                {
                     node->value = avg_range(sheet, row1, col1, row2, col2);
-                } else if (strcmp(node->cellexpr->function, "STDEV") == 0) {
+                }
+                else if (strcmp(node->cellexpr->function, "STDEV") == 0)
+                {
                     node->value = stdev_range(sheet, row1, col1, row2, col2);
                 }
                 node->error = false;
             }
-        } else {
+        }
+        else
+        {
             node->error = true;
             strcpy(node->expression, "ERR");
         }
     }
-    
+
     // Propagate changes to dependents (even if this node is in error).
-    for (int i = 0; i < node->dept_count; i++) {
+    for (int i = 0; i < node->dept_count; i++)
+    {
         recalculate_cell(sheet, nrows, ncols, node->dependents[i]);
     }
 }
-
 
 // Helper function to detect cycles.
 // It recursively searches from 'current' to see if it can reach 'target'.
@@ -503,8 +587,8 @@ int main(int argc, char *argv[])
                 int r, c;
                 extract_column_row(cell, col_label, &r);
                 c = column_label_to_index(col_label);
-
                 start_time = time(NULL);
+
                 if (r >= nrows || c >= ncols)
                 {
                     strcpy(status, "Invalid range");
@@ -512,8 +596,14 @@ int main(int argc, char *argv[])
                 else
                 {
                     strcpy(status, "ok");
-                    int x, y;
+
+                    // Clear old dependency links from this cell.
+                    clear_dependencies(&sheet[r][c]);
+
+                    int x = 0, y = 0;
                     bool cycleDetected = false;
+                    Node *stack[100];
+                    int stackSize = 0;
 
                     // Process first operand.
                     if (is_valid_cell_reference(expr.value[0]))
@@ -524,19 +614,12 @@ int main(int argc, char *argv[])
                         cdep1 = column_label_to_index(col_label_dep1);
                         Node *dep1 = &sheet[rdep1][cdep1];
 
-                        // Check for cycle: would adding dep1 as a dependency cause a cycle?
+                        if (detect_cycle(dep1, &sheet[r][c], stack, stackSize))
+                            cycleDetected = true;
+                        else
                         {
-                            Node *stack[100]; // Adjust size if needed.
-                            int stackSize = 0;
-                            if (detect_cycle(dep1, &sheet[r][c], stack, stackSize))
-                            {
-                                cycleDetected = true;
-                            }
-                            else
-                            {
-                                add_dependency(&sheet[r][c], dep1);
-                                add_dependents(dep1, &sheet[r][c]);
-                            }
+                            add_dependency(&sheet[r][c], dep1);
+                            add_dependents(dep1, &sheet[r][c]);
                         }
                         x = sheet[rdep1][cdep1].value;
                     }
@@ -545,7 +628,8 @@ int main(int argc, char *argv[])
                         x = string_to_int(expr.value[0]);
                     }
 
-                    // Process second operand.
+                    // Reset stack for second operand.
+                    stackSize = 0;
                     if (is_valid_cell_reference(expr.value[1]))
                     {
                         char col_label_dep2[100];
@@ -554,18 +638,12 @@ int main(int argc, char *argv[])
                         cdep2 = column_label_to_index(col_label_dep2);
                         Node *dep2 = &sheet[rdep2][cdep2];
 
+                        if (detect_cycle(dep2, &sheet[r][c], stack, stackSize))
+                            cycleDetected = true;
+                        else
                         {
-                            Node *stack[100]; // Adjust size if needed.
-                            int stackSize = 0;
-                            if (detect_cycle(dep2, &sheet[r][c], stack, stackSize))
-                            {
-                                cycleDetected = true;
-                            }
-                            else
-                            {
-                                add_dependency(&sheet[r][c], dep2);
-                                add_dependents(dep2, &sheet[r][c]);
-                            }
+                            add_dependency(&sheet[r][c], dep2);
+                            add_dependents(dep2, &sheet[r][c]);
                         }
                         y = sheet[rdep2][cdep2].value;
                     }
@@ -574,7 +652,6 @@ int main(int argc, char *argv[])
                         y = string_to_int(expr.value[1]);
                     }
 
-                    // If a cycle is detected, mark error in the cell.
                     if (cycleDetected)
                     {
                         sheet[r][c].error = true;
@@ -596,11 +673,11 @@ int main(int argc, char *argv[])
                     }
                 }
 
-                // Clear old expression data and copy in the new expression.
+                // Overwrite the cell's expression with the new arithmetic expression.
                 memset(sheet[r][c].cellexpr, 0, sizeof(Expression));
                 memcpy(sheet[r][c].cellexpr, &expr, sizeof(Expression));
 
-                // Propagate changes to dependents.
+                // Propagate recalculation so dependents update.
                 recalculate_cell(sheet, nrows, ncols, &sheet[r][c]);
 
                 printf("type: %s\n", sheet[r][c].cellexpr->type);
