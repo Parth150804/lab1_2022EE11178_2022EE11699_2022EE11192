@@ -20,6 +20,7 @@ Node *create_node()
     new_node->value = 0;
     new_node->expression = (char *)malloc(strlen("ERR") + 1);
     new_node->dependencies = NULL;
+    new_node->dependents = NULL;
     new_node->depc_count = 0;
     new_node->dept_count = 0;
     new_node->error = false;
@@ -179,44 +180,16 @@ void print_expression(const struct Expression *expr)
     printf("--------------------\n");
 }
 
-// Function to add a dependency between two nodes
-void add_dependency(Node *dependent, Node *dependency)
-{
-    // Reallocate memory to add one more dependency
-    dependency->dependencies = realloc(dependency->dependencies,
-                                       (dependency->depc_count + 1) * sizeof(Node *));
-    if (!dependency->dependencies)
-    {
-        printf("Memory allocation failed while adding dependency.\n");
-        return;
-    }
-    
-    // Add the new dependency
-    dependency->dependencies[dependency->depc_count] = dependent;
-    dependency->depc_count++;
-}
-
-void add_dependents(Node *dependent, Node *dependency)
-{
-    // Reallocate memory to add one more dependency
-    dependent->dependents = realloc(dependent->dependents,
-                                    (dependent->dept_count + 1) * sizeof(Node *));
-    if (!dependent->dependents)
-    {
-        printf("Memory allocation failed while adding dependents.\n");
-        return;
-    }
-
-    // Add the new dependency
-    dependent->dependents[dependent->dept_count] = dependency;
-    dependent->dept_count++;
-}
-
 // Remove 'dependent' from the dependency cell's dependents list.
+//
 void remove_dependent(Node *dependency, Node *dependent)
 {
-    if (!dependency || !dependency->dependents)
+    if (!dependency || !dependency->dependents || !dependent)
+    {
+        printf("NULL return\n");
+        //;
         return;
+    }
     int index = -1;
     for (int i = 0; i < dependency->dept_count; i++)
     {
@@ -244,7 +217,11 @@ void remove_dependent(Node *dependency, Node *dependent)
             dependency->dependents = realloc(dependency->dependents,
                                              dependency->dept_count * sizeof(Node *));
         }
+        printf("Removed {%d} from {%d}.dependent\n", dependency->value, dependent->value);
+        //;
     }
+    printf("Can't  {%d} from {%d}.dependent\n", dependency->value, dependent->value);
+    //;
 }
 
 // Clear all dependency links from a cell.
@@ -255,17 +232,75 @@ void clear_dependencies(Node *cell)
     {
         for (int i = 0; i < cell->depc_count; i++)
         {
+            printf("cell to removed %d\n", cell->dependencies[i]->value);
             remove_dependent(cell->dependencies[i], cell);
         }
         free(cell->dependencies);
         cell->dependencies = NULL;
         cell->depc_count = 0;
+        //;
     }
 }
 
+// Function to add a dependency between two nodes
+void add_dependency(Node *dependent, Node *dependency)
+{
+    if (!dependent || !dependency)
+    {
+        printf("Invalid nodes provided.\n");
+        return;
+    }
+    // Reallocate memory to add one more dependency
+    Node **temp = NULL;
+    if (dependent->depc_count == 0)
+    {
+        temp = (Node **)malloc(sizeof(Node *));
+    }
+    else
+    {
+        temp = realloc(dependent->dependencies, (dependent->depc_count + 1) * sizeof(Node *));
+    }
+    if (!temp)
+    {
+        printf("Memory allocation failed while adding dependency.\n");
+        return;
+    }
+    // Reassign the new memory address after realloc
+    dependent->dependencies = temp;
 
+    // Add the new dependency
+    dependent->dependencies[dependent->depc_count] = dependency;
+    dependent->depc_count++; // Increment depc_count
 
-// recursive function to recalculate the cell
+    // Debug print statements to check the changes
+    printf("Inside add_dependency: depc_count = %d\n", dependent->depc_count);
+}
+
+void add_dependents(Node *dependent, Node *dependency)
+{
+    // Reallocate memory to add one more dependent
+    Node **temp = NULL;
+    if (dependency->dept_count == 0)
+    {
+        temp = (Node **)malloc(sizeof(Node *));
+    }
+    else
+        temp = realloc(dependency->dependents, (dependency->dept_count + 1) * sizeof(Node *));
+    if (!temp)
+    {
+        printf("Memory allocation failed while adding dependents.\n");
+        return;
+    }
+    // Reassign the new memory address after realloc
+    dependency->dependents = temp;
+
+    // Add the new dependent
+    dependency->dependents[dependency->dept_count] = dependent;
+    dependency->dept_count++; // Increment dept_count
+    printf("Inside add_dependendent: dept_count = %d\n", dependency->dept_count);
+}
+
+// Recursive function to recalculate the cell
 void recalculate_cell(Node **sheet, int nrows, int ncols, Node *node)
 {
     if (!node)
@@ -278,7 +313,7 @@ void recalculate_cell(Node **sheet, int nrows, int ncols, Node *node)
         char op = node->cellexpr->operator[0];
         bool dependencyError = false;
 
-        // Evaluate first operand.
+        // Evaluate first operand
         if (is_valid_cell_reference(node->cellexpr->value[0]))
         {
             char col_label[10];
@@ -294,7 +329,7 @@ void recalculate_cell(Node **sheet, int nrows, int ncols, Node *node)
             x = string_to_int(node->cellexpr->value[0]);
         }
 
-        // Evaluate second operand.
+        // Evaluate second operand
         if (is_valid_cell_reference(node->cellexpr->value[1]))
         {
             char col_label[10];
@@ -310,7 +345,7 @@ void recalculate_cell(Node **sheet, int nrows, int ncols, Node *node)
             y = string_to_int(node->cellexpr->value[1]);
         }
 
-        // If any dependency is in error or division by zero occurs, mark error.
+        // If any dependency is in error or division by zero occurs, mark error
         if (dependencyError || (op == '/' && y == 0))
         {
             node->error = true;
@@ -329,7 +364,7 @@ void recalculate_cell(Node **sheet, int nrows, int ncols, Node *node)
         bool dependencyError = false;
         if (is_valid_range(node->cellexpr->range, &row1, &col1, &row2, &col2))
         {
-            // Check every cell in the range for an error.
+            // Check every cell in the range for an error
             for (int i = row1; i <= row2 && !dependencyError; i++)
             {
                 for (int j = col1; j <= col2; j++)
@@ -348,7 +383,7 @@ void recalculate_cell(Node **sheet, int nrows, int ncols, Node *node)
             }
             else
             {
-                // Evaluate the function normally.
+                // Evaluate the function normally
                 if (strcmp(node->cellexpr->function, "MIN") == 0)
                 {
                     node->value = min_range(sheet, row1, col1, row2, col2);
@@ -379,49 +414,79 @@ void recalculate_cell(Node **sheet, int nrows, int ncols, Node *node)
         }
     }
 
-    // Propagate changes to dependents (even if this node is in error).
+    // Propagate changes to dependents (even if this node is in error)
     for (int i = 0; i < node->dept_count; i++)
     {
+        if (node->dependents[i] == NULL)
+        {
+            printf("NULL\n");
+            continue;
+        }
+        printf("ERR: recalculate_cell: %d\n", node->dependents[i]->value);
+        if (node->dependents[i]->error && node->error)
+        {
+            continue;
+        }
         recalculate_cell(sheet, nrows, ncols, node->dependents[i]);
     }
 }
 
-// Helper function to detect cycles.
-// It recursively searches from 'current' to see if it can reach 'target'.
-// 'stack' is used to keep track of the recursion path to avoid infinite loops.
+// Helper function to detect cycles
 bool detect_cycle(Node *current, Node *target, Node **stack, int stackSize)
 {
-    if (current == target)
-        return true;
-
-    // Check if current is already in the recursion stack.
-    for (int i = 0; i < stackSize; i++)
+    if (current == NULL || target == NULL)
     {
-        if (stack[i] == current)
-            return false; // already visited in this path, no need to check again.
+        return false;
     }
 
-    // Add current to the recursion stack.
+    if (current == target)
+        return true; // Cycle detected
+
+    // Check if current is already in the recursion stack
+    printf("stackSize: %d : %d\n", stackSize, current->value);
+    for (int i = 0; i < stackSize; i++)
+    {
+        printf("stack[%d]: %d\n", i, stack[i]->value);
+        if (stack[i] == current)
+            return true; // Already visited in this path
+    }
+    printf("helooooo from detect cycle\n");
+    // Add current to the recursion stack
     stack[stackSize] = current;
     stackSize++;
 
-    // Recursively check all dependencies.
+    // Recursively check all dependencies
+    printf("depc_count in the : %d :- val:%d\n", current->depc_count, current->value);
     for (int i = 0; i < current->depc_count; i++)
     {
+        if (current->dependencies == NULL)
+        {
+            printf("NULL_List\n");
+            return false;
+        }
+        if (current->dependencies[i] == NULL)
+        {
+            printf("NULL\n");
+            return false;
+        }
         Node *dep = current->dependencies[i];
+        printf("went from %d -> %d\n", current->value, dep->value);
+
         if (dep == target)
         {
-            return true;
+            printf("True exit when curr_val= %d\n", current->value);
+            return true; // Cycle detected
         }
         if (detect_cycle(dep, target, stack, stackSize))
             return true;
     }
-
-    return false;
+    printf("False exit when curr_val= %d\n", current->value);
+    return false; // No cycle detected
 }
 
 int main(int argc, char *argv[])
 {
+    printf("Hii from try.c\n");
     if (argc != 3)
     {
         printf("Usage: %s <nrows> <ncols>\n", argv[0]);
@@ -556,6 +621,7 @@ int main(int argc, char *argv[])
                 }
                 else
                 {
+                    clear_dependencies(&sheet[r][c]);
                     sheet[r][c].error = false;
                     sheet[r][c].value = val;
                     strcpy(status, "ok");
@@ -598,7 +664,7 @@ int main(int argc, char *argv[])
                     strcpy(status, "ok");
 
                     // Clear old dependency links from this cell.
-                    clear_dependencies(&sheet[r][c]);
+                    clear_dependencies(&sheet[r][c]); // to check
 
                     int x = 0, y = 0;
                     bool cycleDetected = false;
@@ -613,15 +679,19 @@ int main(int argc, char *argv[])
                         extract_column_row(expr.value[0], col_label_dep1, &rdep1);
                         cdep1 = column_label_to_index(col_label_dep1);
                         Node *dep1 = &sheet[rdep1][cdep1];
+                        printf("helpppp\n");
 
                         if (detect_cycle(dep1, &sheet[r][c], stack, stackSize))
+                        {
                             cycleDetected = true;
+                        }
                         else
                         {
-                            add_dependency(&sheet[r][c], dep1);
-                            add_dependents(dep1, &sheet[r][c]);
+                            // Need to do for cycle detect case also but skipping for now:)
+                            x = sheet[rdep1][cdep1].value;
                         }
-                        x = sheet[rdep1][cdep1].value;
+                        add_dependency(&sheet[r][c], dep1);
+                        add_dependents(&sheet[r][c], dep1);
                     }
                     else
                     {
@@ -639,13 +709,17 @@ int main(int argc, char *argv[])
                         Node *dep2 = &sheet[rdep2][cdep2];
 
                         if (detect_cycle(dep2, &sheet[r][c], stack, stackSize))
+                        {
                             cycleDetected = true;
+                        }
                         else
                         {
-                            add_dependency(&sheet[r][c], dep2);
-                            add_dependents(dep2, &sheet[r][c]);
+                            // Need to do for cycle detect case also but skipping for now:)
+                            y = sheet[rdep2][cdep2].value;
                         }
-                        y = sheet[rdep2][cdep2].value;
+                        add_dependency(&sheet[r][c], dep2);
+                        add_dependents(&sheet[r][c], dep2);
+                        printf("Finally error %d\n", dep2->value);
                     }
                     else
                     {
@@ -656,6 +730,12 @@ int main(int argc, char *argv[])
                     {
                         sheet[r][c].error = true;
                         strcpy(sheet[r][c].expression, "ERR");
+                        printf("ERR: Finally CYCLEDETECTED\n");
+                        for (int i = 0; i < sheet[r][c].dept_count; i++)
+                        {
+                            if (sheet[r][c].dependents[i])
+                                recalculate_cell(sheet, nrows, ncols, sheet[r][c].dependents[i]);
+                        }
                     }
                     else
                     {
@@ -678,7 +758,9 @@ int main(int argc, char *argv[])
                 memcpy(sheet[r][c].cellexpr, &expr, sizeof(Expression));
 
                 // Propagate recalculation so dependents update.
-                recalculate_cell(sheet, nrows, ncols, &sheet[r][c]);
+                printf("Calling recalculate_cell for %d:%d\n", r, c);
+                if (!sheet[r][c].error)
+                    recalculate_cell(sheet, nrows, ncols, &sheet[r][c]);
 
                 printf("type: %s\n", sheet[r][c].cellexpr->type);
                 print_expression(sheet[r][c].cellexpr);
@@ -713,7 +795,7 @@ int main(int argc, char *argv[])
                             for (int j = col1; j <= col2; j++)
                             {
                                 add_dependency(&sheet[r][c], &sheet[i][j]);
-                                add_dependents(&sheet[i][j], &sheet[r][c]);
+                                add_dependents(&sheet[r][c], &sheet[i][j]);
                             }
                         }
                         // Evaluate the function based on its type.

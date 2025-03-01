@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <stdbool.h>
 #include <limits.h>
 // Define a structure for each cell (node in the graph)
 typedef struct Node {
