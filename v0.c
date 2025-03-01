@@ -186,7 +186,7 @@ void remove_dependent(Node *dependency, Node *dependent)
 {
     if (!dependency || !dependency->dependents || !dependent)
     {
-        printf("NULL return\n");
+        // printf("NULL return\n");
         //;
         return;
     }
@@ -217,10 +217,10 @@ void remove_dependent(Node *dependency, Node *dependent)
             dependency->dependents = realloc(dependency->dependents,
                                              dependency->dept_count * sizeof(Node *));
         }
-        printf("Removed {%d} from {%d}.dependent\n", dependency->value, dependent->value);
+        // printf("Removed {%d} from {%d}.dependent\n", dependency->value, dependent->value);
         //;
     }
-    printf("Can't  {%d} from {%d}.dependent\n", dependency->value, dependent->value);
+    // printf("Can't  {%d} from {%d}.dependent\n", dependency->value, dependent->value);
     //;
 }
 
@@ -232,7 +232,7 @@ void clear_dependencies(Node *cell)
     {
         for (int i = 0; i < cell->depc_count; i++)
         {
-            printf("cell to removed %d\n", cell->dependencies[i]->value);
+            // printf("cell to removed %d\n", cell->dependencies[i]->value);
             remove_dependent(cell->dependencies[i], cell);
         }
         free(cell->dependencies);
@@ -273,7 +273,7 @@ void add_dependency(Node *dependent, Node *dependency)
     dependent->depc_count++; // Increment depc_count
 
     // Debug print statements to check the changes
-    printf("Inside add_dependency: depc_count = %d\n", dependent->depc_count);
+    // printf("Inside add_dependency: depc_count = %d\n", dependent->depc_count);
 }
 
 void add_dependents(Node *dependent, Node *dependency)
@@ -297,7 +297,7 @@ void add_dependents(Node *dependent, Node *dependency)
     // Add the new dependent
     dependency->dependents[dependency->dept_count] = dependent;
     dependency->dept_count++; // Increment dept_count
-    printf("Inside add_dependendent: dept_count = %d\n", dependency->dept_count);
+    // printf("Inside add_dependendent: dept_count = %d\n", dependency->dept_count);
 }
 
 // Recursive function to recalculate the cell
@@ -419,10 +419,10 @@ void recalculate_cell(Node **sheet, int nrows, int ncols, Node *node)
     {
         if (node->dependents[i] == NULL)
         {
-            printf("NULL\n");
+            // printf("NULL\n");
             continue;
         }
-        printf("ERR: recalculate_cell: %d\n", node->dependents[i]->value);
+        // printf("ERR: recalculate_cell: %d\n", node->dependents[i]->value);
         if (node->dependents[i]->error && node->error)
         {
             continue;
@@ -443,50 +443,49 @@ bool detect_cycle(Node *current, Node *target, Node **stack, int stackSize)
         return true; // Cycle detected
 
     // Check if current is already in the recursion stack
-    printf("stackSize: %d : %d\n", stackSize, current->value);
+    // printf("stackSize: %d : %d\n", stackSize, current->value);
     for (int i = 0; i < stackSize; i++)
     {
-        printf("stack[%d]: %d\n", i, stack[i]->value);
+        // printf("stack[%d]: %d\n", i, stack[i]->value);
         if (stack[i] == current)
             return true; // Already visited in this path
     }
-    printf("helooooo from detect cycle\n");
+    // printf("helooooo from detect cycle\n");
     // Add current to the recursion stack
     stack[stackSize] = current;
     stackSize++;
 
     // Recursively check all dependencies
-    printf("depc_count in the : %d :- val:%d\n", current->depc_count, current->value);
+    // printf("depc_count in the : %d :- val:%d\n", current->depc_count, current->value);
     for (int i = 0; i < current->depc_count; i++)
     {
         if (current->dependencies == NULL)
         {
-            printf("NULL_List\n");
+            // printf("NULL_List\n");
             return false;
         }
         if (current->dependencies[i] == NULL)
         {
-            printf("NULL\n");
+            // printf("NULL\n");
             return false;
         }
         Node *dep = current->dependencies[i];
-        printf("went from %d -> %d\n", current->value, dep->value);
+        // printf("went from %d -> %d\n", current->value, dep->value);
 
         if (dep == target)
         {
-            printf("True exit when curr_val= %d\n", current->value);
+            // printf("True exit when curr_val= %d\n", current->value);
             return true; // Cycle detected
         }
         if (detect_cycle(dep, target, stack, stackSize))
             return true;
     }
-    printf("False exit when curr_val= %d\n", current->value);
+    // printf("False exit when curr_val= %d\n", current->value);
     return false; // No cycle detected
 }
 
 int main(int argc, char *argv[])
 {
-    printf("Hii from try.c\n");
     if (argc != 3)
     {
         printf("Usage: %s <nrows> <ncols>\n", argv[0]);
@@ -639,8 +638,8 @@ int main(int argc, char *argv[])
                 // Recalculate dependents of this cell so that any arithmetic cells using A1 update.
                 recalculate_cell(sheet, nrows, ncols, &sheet[r][c]);
 
-                printf("type: %s\n", sheet[r][c].cellexpr->type);
-                print_expression(sheet[r][c].cellexpr);
+                // printf("type: %s\n", sheet[r][c].cellexpr->type);
+                // print_expression(sheet[r][c].cellexpr);
                 display_sheet(sheet, nrows, ncols, start_row, start_col, print_output);
 
                 end_time = time(NULL);
@@ -679,7 +678,7 @@ int main(int argc, char *argv[])
                         extract_column_row(expr.value[0], col_label_dep1, &rdep1);
                         cdep1 = column_label_to_index(col_label_dep1);
                         Node *dep1 = &sheet[rdep1][cdep1];
-                        printf("helpppp\n");
+                        // printf("helpppp\n");
 
                         if (detect_cycle(dep1, &sheet[r][c], stack, stackSize))
                         {
@@ -719,7 +718,7 @@ int main(int argc, char *argv[])
                         }
                         add_dependency(&sheet[r][c], dep2);
                         add_dependents(&sheet[r][c], dep2);
-                        printf("Finally error %d\n", dep2->value);
+                        // printf("Finally error %d\n", dep2->value);
                     }
                     else
                     {
@@ -730,7 +729,7 @@ int main(int argc, char *argv[])
                     {
                         sheet[r][c].error = true;
                         strcpy(sheet[r][c].expression, "ERR");
-                        printf("ERR: Finally CYCLEDETECTED\n");
+                        // printf("ERR: Finally CYCLEDETECTED\n");
                         for (int i = 0; i < sheet[r][c].dept_count; i++)
                         {
                             if (sheet[r][c].dependents[i])
@@ -758,12 +757,12 @@ int main(int argc, char *argv[])
                 memcpy(sheet[r][c].cellexpr, &expr, sizeof(Expression));
 
                 // Propagate recalculation so dependents update.
-                printf("Calling recalculate_cell for %d:%d\n", r, c);
+                // printf("Calling recalculate_cell for %d:%d\n", r, c);
                 if (!sheet[r][c].error)
                     recalculate_cell(sheet, nrows, ncols, &sheet[r][c]);
 
-                printf("type: %s\n", sheet[r][c].cellexpr->type);
-                print_expression(sheet[r][c].cellexpr);
+                // printf("type: %s\n", sheet[r][c].cellexpr->type);
+                // print_expression(sheet[r][c].cellexpr);
                 display_sheet(sheet, nrows, ncols, start_row, start_col, print_output);
 
                 end_time = time(NULL);
@@ -840,8 +839,8 @@ int main(int argc, char *argv[])
                 // Propagate changes so that any dependents update.
                 recalculate_cell(sheet, nrows, ncols, &sheet[r][c]);
 
-                printf("type: %s\n", sheet[r][c].cellexpr->type);
-                print_expression(sheet[r][c].cellexpr);
+                // printf("type: %s\n", sheet[r][c].cellexpr->type);
+                // print_expression(sheet[r][c].cellexpr);
                 display_sheet(sheet, nrows, ncols, start_row, start_col, print_output);
 
                 end_time = time(NULL);

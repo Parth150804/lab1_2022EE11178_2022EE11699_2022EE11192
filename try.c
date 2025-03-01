@@ -685,7 +685,6 @@ bool detect_cycle(Node *current, Node *target, Node **stack, int stackSize)
 
 int main(int argc, char *argv[])
 {
-    printf("Hii from try.c\n");
     if (argc != 3)
     {
         printf("Usage: %s <nrows> <ncols>\n", argv[0]);
