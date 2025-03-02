@@ -532,14 +532,18 @@ bool detect_cycle(Node *current, Node *target, Node **stack, int stackSize)
 
 int main(int argc, char *argv[])
 {
+
+    int nrows;
+    int ncols;
     if (argc != 3)
     {
-        printf("Usage: %s <nrows> <ncols>\n", argv[0]);
-        return 1;
+        nrows=999;
+        ncols=18278;
     }
-
-    int nrows = atoi(argv[1]);
-    int ncols = atoi(argv[2]);
+    else{
+        nrows = atoi(argv[1]);
+        ncols = atoi(argv[2]);
+    }
 
     if (nrows < 1 || nrows > 999 || ncols < 1 || ncols > 18278)
     {
