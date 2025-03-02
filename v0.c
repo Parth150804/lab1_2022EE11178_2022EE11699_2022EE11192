@@ -362,7 +362,53 @@ void recalculate_cell(Node **sheet, int nrows, int ncols, Node *node)
     {
         int row1, col1, row2, col2;
         bool dependencyError = false;
-        if (is_valid_range(node->cellexpr->range, &row1, &col1, &row2, &col2))
+        if (strcmp(node->cellexpr->function, "SLEEP") == 0)
+        {
+            int sleep_seconds = 0;
+            bool dependencyError = false;
+
+            // Parse the argument (cell or literal)
+            if (is_valid_cell_reference(node->cellexpr->range))
+            {
+                char col_label[10];
+                int row, col;
+                extract_column_row(node->cellexpr->range, col_label, &row);
+                col = column_label_to_index(col_label);
+
+                // Check bounds and errors
+                if (row >= nrows || col >= ncols || sheet[row][col].error)    
+                {
+                    dependencyError = true;
+                }
+                else
+                {
+                    // Recalculate dependency first
+                    // recalculate_cell(sheet, nrows, ncols, &sheet[row][col]);
+                    sleep_seconds = sheet[row][col].value;
+                }
+            }
+            else
+            {
+                // Parse literal value
+                print_expression(node->cellexpr);
+                sleep_seconds = string_to_int(node->cellexpr->range);
+            }
+
+            if (dependencyError)
+            {
+                printf("Dependency error in SLEEP function.\n");
+                node->error = true;
+                strcpy(node->expression, "ERR");
+            }
+            else
+            {
+                // printf("ERR SLEEP function.\n");
+                sleep(sleep_seconds); // Actual sleep
+                node->value = sleep_seconds;
+                node->error = false;
+            }
+        }
+        else if (is_valid_range(node->cellexpr->range, &row1, &col1, &row2, &col2))
         {
             // Check every cell in the range for an error
             for (int i = row1; i <= row2 && !dependencyError; i++)
@@ -776,10 +822,51 @@ int main(int argc, char *argv[])
                 extract_column_row(cell, col_label, &r);
                 c = column_label_to_index(col_label);
 
+                Node *stack[100];
+                int stackSize = 0;
+
                 start_time = time(NULL);
                 if (r >= nrows || c >= ncols)
                 {
                     strcpy(status, "Invalid range");
+                }
+                else if (strcmp(expr.function, "SLEEP") == 0)
+                {
+                    // Clear existing dependencies
+                    clear_dependencies(&sheet[r][c]);
+                    // int num;
+                    // Check if the argument is a cell reference
+                    if (is_valid_cell_reference(expr.range))
+                    {
+                        char col_label[10];
+                        int arg_row, arg_col;
+                        extract_column_row(expr.range, col_label, &arg_row);
+                        arg_col = column_label_to_index(col_label);
+
+
+                        if(detect_cycle(&sheet[arg_row][arg_col], &sheet[r][c] , stack, stackSize))
+                        {
+                            printf("Adding depend: arg_row: %d, arg_col: %d\n", arg_row, arg_col);
+
+                            sheet[r][c].error = true;
+                            sheet[arg_row][arg_col].error = true;
+                            sheet[r][c].value = 0;
+                            strcpy(sheet[r][c].expression, "ERR");
+                            strcpy(sheet[arg_row][arg_col].expression, "ERR");
+                            // continue;
+                        }
+
+                        // Add dependency
+                        add_dependency(&sheet[r][c], &sheet[arg_row][arg_col]);
+                        add_dependents(&sheet[r][c], &sheet[arg_row][arg_col]);
+                        printf("Added depend: arg_row: %d, arg_col: %d\n", arg_row, arg_col);
+                        // num=string_to_int(expr.value[0]);
+                    }
+                    // else
+                    // {
+                    //     // x = string_to_int(expr.value[0]);
+                    // }
+
                 }
                 else
                 {
