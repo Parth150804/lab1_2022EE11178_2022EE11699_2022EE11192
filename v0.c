@@ -390,7 +390,7 @@ void recalculate_cell(Node **sheet, int nrows, int ncols, Node *node)
             else
             {
                 // Parse literal value
-                print_expression(node->cellexpr);
+                // print_expression(node->cellexpr);
                 sleep_seconds = string_to_int(node->cellexpr->range);
             }
 
@@ -604,6 +604,7 @@ int main(int argc, char *argv[])
         }
 
         bool valid = parse_input(input, cell, &expr);
+        // print_expression(&expr);
 
         if (valid)
         {
@@ -692,7 +693,7 @@ int main(int argc, char *argv[])
                 elapsed_time = (double)(end_time - start_time);
             }
 
-            else if (strcmp(expr.type, "arithmetic") == 0)
+            else if (strcmp(expr.type, "arithmetic") == 0 || strcmp(expr.type, "cell") == 0)
             {
                 char col_label[100];
                 int r, c;
@@ -745,6 +746,12 @@ int main(int argc, char *argv[])
 
                     // Reset stack for second operand.
                     stackSize = 0;
+                    if(strcmp(expr.type,"cell")==0 ){
+                        strcpy(expr.operator,"+");
+                        strcpy(expr.value[1], "0");
+                        // print_expression(&expr);
+
+                    }
                     if (is_valid_cell_reference(expr.value[1]))
                     {
                         char col_label_dep2[100];
@@ -859,13 +866,7 @@ int main(int argc, char *argv[])
                         // Add dependency
                         add_dependency(&sheet[r][c], &sheet[arg_row][arg_col]);
                         add_dependents(&sheet[r][c], &sheet[arg_row][arg_col]);
-                        printf("Added depend: arg_row: %d, arg_col: %d\n", arg_row, arg_col);
-                        // num=string_to_int(expr.value[0]);
                     }
-                    // else
-                    // {
-                    //     // x = string_to_int(expr.value[0]);
-                    // }
 
                 }
                 else
