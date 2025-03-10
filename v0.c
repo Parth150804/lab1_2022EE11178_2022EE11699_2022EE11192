@@ -74,7 +74,7 @@ void print_column_headers(int start_col, int ncols)
     {
         char label[10];
         get_column_label(j, label);
-        printf("%-6s", label);
+        printf("%-4s", label);
     }
     printf("\n");
 }
@@ -95,16 +95,16 @@ void print_sheet_data(Node **sheet, int nrows, int ncols, int start_row, int sta
     // Print data with row numbers
     for (int i = start_row; i < start_row + max_rows; i++)
     {
-        printf("%-6d", i + 1); // Row index
+        printf("%-4d", i + 1); // Row index
         for (int j = start_col; j < start_col + max_cols; j++)
         {
             if (!sheet[i][j].error)
             {
-                printf("%-6d", sheet[i][j].value); // Corrected access
+                printf("%-4d", sheet[i][j].value); // Corrected access
             }
             else
             {
-                printf("%-6s", sheet[i][j].expression);
+                printf("%-4s", sheet[i][j].expression);
             }
         }
         printf("\n");
@@ -118,7 +118,7 @@ void display_sheet(Node **sheet, int nrows, int ncols, int start_row, int start_
     {
         return;
     }
-    printf("      ");
+    printf("    ");
     print_column_headers(start_col, ncols);
     print_sheet_data(sheet, nrows, ncols, start_row, start_col);
 }

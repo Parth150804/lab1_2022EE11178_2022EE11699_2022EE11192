@@ -1,0 +1,183 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage[utf8]{inputenc}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\title{C Lab: Submission Report}
+
+\author{Team Members: \textbf{Parth Gautam, Rohit Rajput}\\ Entry Numbers: \textbf{2022EE11178, 2022EE11699}}
+
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+This project involves the development of a command-line spreadsheet program. The spreadsheet operates as a grid of cells, each capable of storing integer values or formulas that reference other cells. Users can interact with the spreadsheet through a command-line interface, allowing them to set values, apply arithmetic operations, and use built-in functions such as \texttt{MIN}, \texttt{MAX}, \texttt{AVG}, \texttt{SUM}, \texttt{STDEV} and \texttt{SLEEP}.  
+
+The program supports dynamic recalculations, ensuring that dependent cells update automatically when their referenced values change. Additionally, it includes error handling for invalid commands, operations on non-existent cells, division by zero, and circular dependencies in formulas.  
+
+To enhance usability, the spreadsheet provides navigation commands for scrolling across large grids and features such as \texttt{disable\_output} and \texttt{enable\_\\output} to control display settings. The implementation prioritizes efficiency, leveraging a Directed Acyclic Graph (DAG) to track dependencies and minimize redundant calculations.  
+
+This report outlines the key design decisions, implementation challenges, error-handling mechanisms, and overall software architecture of the spreadsheet program.  
+
+\section{Design Decisions}
+\subsection{Data Structures}
+The spreadsheet is implemented using a 2D array of structs, where each cell stores:
+\begin{itemize}
+    \item A value (iInteger value of the cell)
+    \item An expression (Expression (if any) stored as a string)
+    \item dependencies list (Array of pointers to nodes on which the cell depends)
+    \item dependents list (Array of pointers to nodes which depends on the cell)
+    \item dependency count (Number of dependencies)
+    \item dependent count (Number of dependents)
+    \item an error flag (to check whether the current cell has error or not)
+    \item cell expression (after parsing)
+\end{itemize}
+We use an adjacency list representation for tracking dependencies between cells.
+
+\subsection{Command Parsing}
+Commands are parsed using a token-based approach, differentiating between cell assignments, arithmetic operations, function calls, and control inputs.
+
+\subsection{Efficient Recalculation}
+To ensure efficient updates, we use a Directed Acyclic Graph (DAG) structure to detect dependencies and avoid redundant computations.
+
+\section{Challenges Faced}
+\begin{itemize}
+    \item Handling circular dependencies in formulas required implementing cycle detection using DFS.
+    \item Ensuring efficient scrolling and display of large sheets within a 10x10 visible grid.
+    \item Implementing precise error propagation for operations like division by zero.
+\end{itemize}
+
+\section{Error Handling and Edge Cases}
+\subsection{Invalid Commands}
+Commands not following the expected format result in an \texttt{unrecognized cmd} error.
+
+\subsection{Invalid Cell References}
+Accessing non-existent cells (e.g., A1000 in a 2x2 sheet) raises an error.
+
+\subsection{Division by Zero Handling}
+If a formula evaluates to division by zero, all dependent cells display \texttt{ERR} and propagate the error.
+
+\title{Command-Line Spreadsheet - Software Architecture}
+\author{}
+\date{}
+\maketitle
+
+\section{Project Structure}
+\begin{verbatim}
+COP290-2402-C-RPM/
+|-- spreadsheet-v1/
+|   |-- include/          # Header files
+|   |   |-- cl_interface.h
+|   |   |-- commands.h
+|   |   |-- input_handling.h
+|   |-- src/              # Source files
+|   |   |-- cl_interface.c
+|   |   |-- commands.c
+|   |   |-- input_handling.c
+|   |   |-- main.c
+|   |-- test/             # Testing files
+|   |   |-- testing_regex.c
+|   |   |-- test_inputs.txt
+|   |   |-- test_results.txt
+|   |-- Makefile          # Build rules
+|   |-- .gitignore        # Ignore files
+|   |-- README.md         # Documentation
+\end{verbatim}
+
+\section{Data Structures}
+
+\subsection{Cell Structure (\texttt{cell\_t})}
+\begin{verbatim}
++--------------------+
+| cell_t            |
+|--------------------|
+| int value         |  <-- Stores integer value
+| char *formula     |  <-- Stores formula as string
+| int is_formula    |  <-- Flag for formula existence
++--------------------+
+\end{verbatim}
+
+\subsection{Spreadsheet Grid (\texttt{spreadsheet\_t})}
+\begin{verbatim}
++----------------------+
+| spreadsheet_t       |
+|----------------------|
+| cell_t **cells      |  <-- 2D array of cells
+| int rows, cols      |  <-- Grid dimensions
++----------------------+
+\end{verbatim}
+
+\subsection{Dependency Graph (DAG)}
+\begin{verbatim}
+    A1 --> B1 --> C1
+           |
+           v
+          D1
+\end{verbatim}
+A Directed Acyclic Graph (DAG) is used to track dependencies, ensuring automatic updates when referenced values change.
+
+\section{Function Flow}
+\begin{verbatim}
+User Input (CLI)
+     |
+     v
++----------------------+
+| cl_interface.c       |  <-- Reads user input
+|----------------------|
+| print_spreadsheet()  |
+| process_command()    |
++----------------------+
+     |
+     v
++----------------------+
+| commands.c          |  <-- Executes commands
+|----------------------|
+| set_value()         |
+| set_formula()       |
+| compute_formula()   |
++----------------------+
+     |
+     v
++----------------------+
+| input_handling.c    |  <-- Parses and validates input
+|----------------------|
+| parse_command()     |
+| validate_formula()  |
++----------------------+
+     |
+     v
+Spreadsheet Grid Updates
+\end{verbatim}
+
+\section{Cell Update Process}
+\begin{verbatim}
+1. User enters: "SET C1 = A1 + B1"
+2. cl_interface.c processes command
+3. commands.c updates value in spreadsheet_t
+4. DAG updates dependencies
+5. compute_formula() recalculates C1
+6. Updated spreadsheet is displayed
+\end{verbatim}
+
+
+\section{Demo and Code Repository}
+\begin{itemize}
+    \item Demo Video: \url{https://csciitd-my.sharepoint.com/:v:/g/personal/ee1221699_iitd_ac_in/EU236_kxHIJKvjh3DnVTwHsB-FNCE-NoJKIi2N8mXT0qxw?e=9oDxFt&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D}
+    \item GitHub Repository: \url{https://github.com/Parth150804/cop290-2402-C-rpm}
+\end{itemize}
+
+\section{Conclusion}
+The project successfully implements a functional spreadsheet program with formula evaluation, error handling, and performance optimizations. Future improvements could include extending support for floating-point numbers and more complex functions.
+
+\end{document}
